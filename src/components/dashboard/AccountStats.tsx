@@ -74,7 +74,7 @@ export default function AccountStats({ accountId }: { accountId: string }) {
 
   if (!stats) return null;
 
-  const chartData = stats.activity_by_day.map((d) => ({
+  const chartData = (stats.activity_by_day ?? []).map((d) => ({
     ...d,
     date: format(parseISO(d.date), "MMM d"),
   }));
@@ -90,7 +90,7 @@ export default function AccountStats({ accountId }: { accountId: string }) {
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <Icon className={`h-4 w-4 ${color}`} />
               </div>
-              <p className="text-2xl font-bold">{stats[key].toLocaleString()}</p>
+              <p className="text-2xl font-bold">{(stats[key] ?? 0).toLocaleString()}</p>
             </CardContent>
           </Card>
         ))}
@@ -154,14 +154,14 @@ export default function AccountStats({ accountId }: { accountId: string }) {
       )}
 
       {/* Top keywords */}
-      {stats.top_keywords.length > 0 && (
+      {(stats.top_keywords ?? []).length > 0 && (
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-base">Top Keywords</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {stats.top_keywords.map(({ keyword, count }) => (
+              {(stats.top_keywords ?? []).map(({ keyword, count }) => (
                 <Badge key={keyword} variant="secondary" className="gap-1.5">
                   {keyword}
                   <span className="text-xs font-normal opacity-70">{count}</span>

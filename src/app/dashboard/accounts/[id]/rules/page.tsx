@@ -27,7 +27,7 @@ export default function RulesPage() {
   useEffect(() => {
     api
       .get(`/api/v1/accounts/${id}/rules/`)
-      .then((res) => setRules(res.data))
+      .then((res) => setRules(res.data.results ?? res.data))
       .catch(() => toast.error("Failed to load rules"))
       .finally(() => setLoading(false));
   }, [id]);
