@@ -28,7 +28,7 @@ export default function EditRulePage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-5 w-5 animate-spin" style={{ color: "#0A84FF" }} />
       </div>
     );
   }
@@ -36,10 +36,14 @@ export default function EditRulePage() {
   if (!rule) return null;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold">Edit Rule</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">{rule.name}</p>
+    <div>
+      <div className="mb-6">
+        <h2 className="text-[18px] font-semibold text-white" style={{ letterSpacing: "-0.018em" }}>
+          Edit Rule
+        </h2>
+        <p className="text-[13px] mt-0.5" style={{ color: "rgba(235,235,245,0.42)" }}>
+          {rule.name}
+        </p>
       </div>
       <RuleForm accountId={id} rule={rule} />
     </div>

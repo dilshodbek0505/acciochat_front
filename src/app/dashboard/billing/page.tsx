@@ -3,15 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import {
-  Check,
-  Zap,
-  CreditCard,
-  Loader2,
-  ExternalLink,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Check, Zap, CreditCard, Loader2, ExternalLink } from "lucide-react";
 import api from "@/lib/api";
 
 const FREE_FEATURES = [
@@ -65,116 +57,131 @@ function BillingContent() {
     } catch (err: unknown) {
       const code = (err as { response?: { data?: { error?: { code?: string } } } })
         ?.response?.data?.error?.code;
-      if (code === "no_subscription") {
-        toast.error("No active subscription");
-      } else {
-        toast.error("Failed to open portal");
-      }
+      toast.error(code === "no_subscription" ? "No active subscription" : "Failed to open portal");
       setPortalLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div>
-        <h2 className="text-2xl font-semibold">Billing</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">
+    <div className="max-w-2xl mx-auto px-8 py-8">
+      <div className="mb-8">
+        <h2 className="text-[22px] font-semibold text-white" style={{ letterSpacing: "-0.02em" }}>
+          Billing
+        </h2>
+        <p className="text-[13px] mt-1" style={{ color: "rgba(235,235,245,0.45)" }}>
           Manage your subscription and billing
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Free plan */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Free</span>
-              <span className="text-2xl font-bold">$0</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="space-y-2">
-              {FREE_FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Button variant="outline" className="w-full" disabled>
-              Current plan
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {/* Free */}
+        <div
+          className="rounded-2xl p-6 space-y-5 border"
+          style={{ background: "rgba(28,28,30,0.5)", borderColor: "rgba(84,84,88,0.3)" }}
+        >
+          <div>
+            <p className="text-[13px] font-medium" style={{ color: "rgba(235,235,245,0.45)" }}>Free</p>
+            <p className="text-[2rem] font-semibold mt-1 text-white" style={{ letterSpacing: "-0.02em" }}>
+              $0
+              <span className="text-[14px] font-normal ml-1" style={{ color: "rgba(235,235,245,0.38)" }}>/ month</span>
+            </p>
+          </div>
+          <ul className="space-y-2.5">
+            {FREE_FEATURES.map((f) => (
+              <li key={f} className="flex items-center gap-2.5 text-[13px]" style={{ color: "rgba(235,235,245,0.6)" }}>
+                <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#32D74B" }} />
+                {f}
+              </li>
+            ))}
+          </ul>
+          <button
+            disabled
+            className="w-full py-2.5 rounded-xl text-[14px] font-medium cursor-not-allowed"
+            style={{ background: "rgba(84,84,88,0.2)", color: "rgba(235,235,245,0.35)" }}
+          >
+            Current plan
+          </button>
+        </div>
 
-        {/* Pro plan */}
-        <Card className="bg-card border-primary/50 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary" />
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                Pro <Zap className="h-4 w-4 text-primary" />
-              </span>
-              <div className="text-right">
-                <span className="text-2xl font-bold">$19</span>
-                <span className="text-sm text-muted-foreground">/mo</span>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="space-y-2">
-              {PRO_FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            {hasSubscription ? (
-              <Button
-                className="w-full gap-2"
-                variant="outline"
-                onClick={openPortal}
-                disabled={portalLoading}
-              >
-                {portalLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <CreditCard className="h-4 w-4" /> Manage subscription
-                    <ExternalLink className="h-3 w-3" />
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button className="w-full gap-2" onClick={goToCheckout} disabled={loading}>
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Zap className="h-4 w-4" /> Upgrade to Pro
-                  </>
-                )}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        {/* Pro */}
+        <div
+          className="rounded-2xl p-6 space-y-5 relative overflow-hidden border"
+          style={{ background: "rgba(28,28,30,0.5)", borderColor: "rgba(10,132,255,0.35)" }}
+        >
+          <div
+            className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(10,132,255,0.6), transparent)" }}
+          />
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-[13px] font-medium" style={{ color: "rgba(235,235,245,0.45)" }}>Pro</p>
+              <Zap className="h-3.5 w-3.5" style={{ color: "#0A84FF" }} />
+            </div>
+            <p className="text-[2rem] font-semibold mt-1 text-white" style={{ letterSpacing: "-0.02em" }}>
+              $19
+              <span className="text-[14px] font-normal ml-1" style={{ color: "rgba(235,235,245,0.38)" }}>/ month</span>
+            </p>
+          </div>
+          <ul className="space-y-2.5">
+            {PRO_FEATURES.map((f) => (
+              <li key={f} className="flex items-center gap-2.5 text-[13px] text-white">
+                <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#0A84FF" }} />
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          {hasSubscription ? (
+            <button
+              onClick={openPortal}
+              disabled={portalLoading}
+              className="w-full py-2.5 rounded-xl text-[14px] font-medium flex items-center justify-center gap-2 transition-all border"
+              style={{ color: "rgba(235,235,245,0.75)", borderColor: "rgba(84,84,88,0.45)" }}
+            >
+              {portalLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4" /> Manage subscription
+                  <ExternalLink className="h-3 w-3" />
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={goToCheckout}
+              disabled={loading}
+              className="w-full py-2.5 rounded-xl text-[14px] font-medium text-white flex items-center justify-center gap-2 transition-all"
+              style={{ background: loading ? "rgba(10,132,255,0.5)" : "#0A84FF" }}
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <><Zap className="h-4 w-4" /> Upgrade to Pro</>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {hasSubscription && (
-        <Card className="bg-card border-border">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="font-medium">Pro subscription active</p>
-              <p className="text-sm text-muted-foreground">
-                Manage billing, invoices, and cancellation via the Stripe portal.
-              </p>
-            </div>
-            <Button variant="outline" onClick={openPortal} disabled={portalLoading} className="gap-2">
-              {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Open portal"}
-            </Button>
-          </CardContent>
-        </Card>
+        <div
+          className="mt-4 rounded-2xl p-4 flex items-center justify-between border"
+          style={{ background: "rgba(28,28,30,0.5)", borderColor: "rgba(84,84,88,0.3)" }}
+        >
+          <div>
+            <p className="text-[14px] font-medium text-white">Pro subscription active</p>
+            <p className="text-[12px] mt-0.5" style={{ color: "rgba(235,235,245,0.45)" }}>
+              Manage billing, invoices, and cancellation via Stripe.
+            </p>
+          </div>
+          <button
+            onClick={openPortal}
+            disabled={portalLoading}
+            className="text-[13px] font-medium px-4 py-2 rounded-xl transition-all flex-shrink-0"
+            style={{ color: "#0A84FF", background: "rgba(10,132,255,0.1)" }}
+          >
+            {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Open portal"}
+          </button>
+        </div>
       )}
     </div>
   );

@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import {
-  LayoutDashboard,
   Camera,
   Zap,
   ScrollText,
   CreditCard,
   Settings,
   LogOut,
-  ChevronLeft,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
@@ -29,24 +28,11 @@ const topNav: NavItem[] = [
   { href: "/dashboard/accounts", label: "Accounts", icon: Camera },
 ];
 
-function buildAccountNav(accountId: string): NavItem[] {
+function buildAccountNav(id: string): NavItem[] {
   return [
-    {
-      href: `/dashboard/accounts/${accountId}`,
-      label: "Overview",
-      icon: LayoutDashboard,
-      exact: true,
-    },
-    {
-      href: `/dashboard/accounts/${accountId}/rules`,
-      label: "Rules",
-      icon: Zap,
-    },
-    {
-      href: `/dashboard/accounts/${accountId}/logs`,
-      label: "Logs",
-      icon: ScrollText,
-    },
+    { href: `/dashboard/accounts/${id}`, label: "Overview", icon: LayoutDashboard, exact: true },
+    { href: `/dashboard/accounts/${id}/rules`, label: "Rules", icon: Zap },
+    { href: `/dashboard/accounts/${id}/logs`, label: "Logs", icon: ScrollText },
   ];
 }
 
@@ -57,21 +43,24 @@ const bottomNav: NavItem[] = [
 
 function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  const active = item.exact
-    ? pathname === item.href
-    : pathname.startsWith(item.href);
+  const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
       className={cn(
-        "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+        "flex items-center gap-2 px-2.5 py-[6px] rounded-[8px] text-[13px] transition-all duration-100 select-none",
         active
-          ? "bg-primary/20 text-primary font-medium"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+          ? "bg-primary/[0.12] text-primary font-medium"
+          : "text-[rgba(235,235,245,0.55)] hover:text-[rgba(235,235,245,0.85)] hover:bg-white/[0.05]"
       )}
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
+      <Icon
+        className={cn(
+          "h-[15px] w-[15px] flex-shrink-0",
+          active ? "text-primary" : "opacity-70"
+        )}
+      />
       {item.label}
     </Link>
   );
@@ -96,51 +85,76 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col min-h-screen">
-      <div className="px-4 py-5 border-b border-sidebar-border">
-        <Link href="/dashboard/accounts" className="text-lg font-bold text-primary">
+    <aside
+      className="w-[200px] flex-shrink-0 flex flex-col min-h-screen border-r"
+      style={{
+        background: "rgba(10, 10, 12, 0.92)",
+        borderColor: "rgba(84, 84, 88, 0.3)",
+      }}
+    >
+      {/* Logo */}
+      <div className="px-4 h-[52px] flex items-center border-b" style={{ borderColor: "rgba(84, 84, 88, 0.2)" }}>
+        <Link href="/dashboard/accounts" className="text-[15px] font-semibold tracking-[-0.02em] text-white">
           AccioChat
         </Link>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 px-2 py-2.5 space-y-0.5 overflow-y-auto">
         {topNav.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}
 
         {accountId && (
           <>
-            <div className="pt-3 pb-1">
-              <Link
-                href="/dashboard/accounts"
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            <div className="px-2.5 pt-4 pb-1">
+              <p
+                className="text-[10px] font-semibold uppercase tracking-[0.06em]"
+                style={{ color: "rgba(235,235,245,0.28)" }}
               >
-                <ChevronLeft className="h-3 w-3" /> All accounts
-              </Link>
+                Account
+              </p>
             </div>
-            <div className="border-t border-sidebar-border pt-2 space-y-1">
-              {buildAccountNav(accountId).map((item) => (
-                <NavLink key={item.href} item={item} />
-              ))}
-            </div>
+            {buildAccountNav(accountId).map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
           </>
         )}
       </nav>
 
-      <div className="p-3 border-t border-sidebar-border space-y-1">
+      {/* Bottom */}
+      <div
+        className="px-2 py-2.5 space-y-0.5 border-t"
+        style={{ borderColor: "rgba(84, 84, 88, 0.2)" }}
+      >
         {bottomNav.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="flex w-full items-center gap-2 px-2.5 py-[6px] rounded-[8px] text-[13px] transition-all duration-100 select-none"
+          style={{ color: "rgba(235,235,245,0.55)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "rgba(235,235,245,0.85)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "rgba(235,235,245,0.55)";
+            e.currentTarget.style.background = "transparent";
+          }}
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-[15px] w-[15px] opacity-70 flex-shrink-0" />
           Sign out
         </button>
+
         {user && (
-          <div className="px-3 pt-2 text-xs text-muted-foreground truncate">
-            {user.email}
+          <div className="px-2.5 pt-2 pb-1">
+            <p
+              className="text-[11px] truncate"
+              style={{ color: "rgba(235,235,245,0.28)" }}
+            >
+              {user.email}
+            </p>
           </div>
         )}
       </div>

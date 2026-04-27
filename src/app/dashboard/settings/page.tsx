@@ -5,35 +5,50 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 
-const profileSchema = z.object({
-  full_name: z.string().min(1, "Name required"),
-});
-
+const profileSchema = z.object({ full_name: z.string().min(1, "Name required") });
 const passwordSchema = z
   .object({
-    password: z
-      .string()
-      .min(8, "At least 8 characters")
-      .regex(/[a-zA-Z]/, "Must include a letter")
-      .regex(/[0-9]/, "Must include a digit"),
+    password: z.string().min(8).regex(/[a-zA-Z]/).regex(/[0-9]/),
     confirm: z.string(),
   })
-  .refine((d) => d.password === d.confirm, {
-    message: "Passwords don't match",
-    path: ["confirm"],
-  });
+  .refine((d) => d.password === d.confirm, { message: "Passwords don't match", path: ["confirm"] });
 
 type ProfileForm = z.infer<typeof profileSchema>;
 type PasswordForm = z.infer<typeof passwordSchema>;
+
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[12px] font-medium block" style={{ color: "rgba(235,235,245,0.55)" }}>
+        {label}
+      </label>
+      {children}
+      {error && <p className="text-[11px]" style={{ color: "#FF453A" }}>{error}</p>}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-2xl border p-6"
+      style={{ background: "rgba(28,28,30,0.5)", borderColor: "rgba(84,84,88,0.28)" }}
+    >
+      <p
+        className="text-[15px] font-medium text-white mb-5"
+        style={{ letterSpacing: "-0.015em" }}
+      >
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const { user, setUser } = useAuthStore();
@@ -45,9 +60,7 @@ export default function SettingsPage() {
     defaultValues: { full_name: user?.full_name ?? "" },
   });
 
-  const passwordForm = useForm<PasswordForm>({
-    resolver: zodResolver(passwordSchema),
-  });
+  const passwordForm = useForm<PasswordForm>({ resolver: zodResolver(passwordSchema) });
 
   const updateProfile = async (data: ProfileForm) => {
     setProfileLoading(true);
@@ -76,82 +89,79 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-xl">
-      <div>
-        <h2 className="text-2xl font-semibold">Settings</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">Manage your account settings</p>
+    <div className="max-w-xl mx-auto px-8 py-8">
+      <div className="mb-8">
+        <h2 className="text-[22px] font-semibold text-white" style={{ letterSpacing: "-0.02em" }}>
+          Settings
+        </h2>
+        <p className="text-[13px] mt-1" style={{ color: "rgba(235,235,245,0.45)" }}>
+          Manage your account settings
+        </p>
       </div>
 
-      {/* Profile */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <User className="h-4 w-4" /> Profile
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="space-y-4">
+        {/* Profile */}
+        <Section title="Profile">
           <form onSubmit={profileForm.handleSubmit(updateProfile)} className="space-y-4">
-            <div className="space-y-1">
-              <Label>Email</Label>
-              <Input value={user?.email ?? ""} disabled className="opacity-60" />
-            </div>
-            <div className="space-y-1">
-              <Label>Full name</Label>
-              <Input {...profileForm.register("full_name")} placeholder="John Doe" />
-              {profileForm.formState.errors.full_name && (
-                <p className="text-xs text-destructive">
-                  {profileForm.formState.errors.full_name.message}
-                </p>
-              )}
-            </div>
-            <Button type="submit" size="sm" disabled={profileLoading}>
-              {profileLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}
-            </Button>
+            <Field label="Email">
+              <Input
+                value={user?.email ?? ""}
+                disabled
+                className="h-[38px] text-[13px] rounded-xl opacity-50"
+                style={{ background: "rgba(58,58,60,0.4)", borderColor: "rgba(84,84,88,0.4)" }}
+              />
+            </Field>
+            <Field label="Full name" error={profileForm.formState.errors.full_name?.message}>
+              <Input
+                placeholder="John Doe"
+                className="h-[38px] text-[13px] rounded-xl"
+                style={{ background: "rgba(58,58,60,0.4)", borderColor: "rgba(84,84,88,0.4)" }}
+                {...profileForm.register("full_name")}
+              />
+            </Field>
+            <button
+              type="submit"
+              disabled={profileLoading}
+              className="px-5 py-2 rounded-xl text-[13px] font-medium text-white transition-all flex items-center gap-2"
+              style={{ background: profileLoading ? "rgba(10,132,255,0.5)" : "#0A84FF" }}
+            >
+              {profileLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save changes"}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </Section>
 
-      <Separator />
-
-      {/* Password */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-base">Change Password</CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* Password */}
+        <Section title="Change Password">
           <form onSubmit={passwordForm.handleSubmit(updatePassword)} className="space-y-4">
-            <div className="space-y-1">
-              <Label>New password</Label>
+            <Field label="New password" error={passwordForm.formState.errors.password?.message}>
               <Input
                 type="password"
                 placeholder="Min 8 chars with letter & digit"
+                className="h-[38px] text-[13px] rounded-xl"
+                style={{ background: "rgba(58,58,60,0.4)", borderColor: "rgba(84,84,88,0.4)" }}
                 {...passwordForm.register("password")}
               />
-              {passwordForm.formState.errors.password && (
-                <p className="text-xs text-destructive">
-                  {passwordForm.formState.errors.password.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <Label>Confirm password</Label>
+            </Field>
+            <Field label="Confirm password" error={passwordForm.formState.errors.confirm?.message}>
               <Input
                 type="password"
                 placeholder="Re-enter password"
+                className="h-[38px] text-[13px] rounded-xl"
+                style={{ background: "rgba(58,58,60,0.4)", borderColor: "rgba(84,84,88,0.4)" }}
                 {...passwordForm.register("confirm")}
               />
-              {passwordForm.formState.errors.confirm && (
-                <p className="text-xs text-destructive">
-                  {passwordForm.formState.errors.confirm.message}
-                </p>
-              )}
-            </div>
-            <Button type="submit" size="sm" disabled={passwordLoading}>
-              {passwordLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update password"}
-            </Button>
+            </Field>
+            <button
+              type="submit"
+              disabled={passwordLoading}
+              className="px-5 py-2 rounded-xl text-[13px] font-medium text-white transition-all flex items-center gap-2"
+              style={{ background: passwordLoading ? "rgba(10,132,255,0.5)" : "#0A84FF" }}
+            >
+              {passwordLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Update password"}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </Section>
+      </div>
     </div>
   );
 }
